@@ -68,3 +68,5 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 - 部分逻辑来自[kirurobo/UniWindowController: Makes your Unity window transparent and allows you to drop files](https://github.com/kirurobo/uniwindowcontroller)
 
 - DLL调用逻辑参考[\[SOLVED!\] Windows: Transparent window with opaque contents (LWA_COLORKEY)? - Unity Engine - Unity Discussions](https://discussions.unity.com/t/solved-windows-transparent-window-with-opaque-contents-lwa-colorkey/578948/97)
+
+- Blit RenderFeature 来自 Cyanilux : https://github.com/Cyanilux/URP_BlitRenderFeature
