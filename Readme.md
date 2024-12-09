@@ -1,5 +1,7 @@
 ## UnityDesktopPetFramework
 
+https://github.com/user-attachments/assets/74aa5786-9882-47b5-ab6b-a5299a2f99a3
+
 A transparent window interactive example project based on Unity URP pipeline, suitable for desktop pets, desktop gadgets, etc.
 
 Compatible with Windows Build
