@@ -8,8 +8,8 @@ Compatible with Windows Build
 
 ## Readme
 
-- [中文](README-sc.md)
-- [English](README.md)
+- [中文](Readme-sc.md)
+- [English](Readme.md)
 
 ## Version
 
