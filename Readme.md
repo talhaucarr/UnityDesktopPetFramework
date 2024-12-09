@@ -6,6 +6,11 @@ A transparent window interactive example project based on Unity URP pipeline, su
 
 Compatible with Windows Build
 
+## Readme
+
+- [中文](README-sc.md)
+- [English](README.md)
+
 ## Version
 
 Unity 2021.3.9f1, using Universal RP 12.1.7
