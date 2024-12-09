@@ -1,5 +1,9 @@
 # UnityDesktopPetFramework
 
+
+https://github.com/user-attachments/assets/74aa5786-9882-47b5-ab6b-a5299a2f99a3
+
+
 一个基于Unity URP管线的，可用于桌宠、桌面小工具等用途的透明窗口可交互示例项目
 
 适用于Windows Build
