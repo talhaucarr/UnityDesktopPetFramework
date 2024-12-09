@@ -66,3 +66,5 @@ Does not use UnityPackage, see **Notes** for reasons
 - Some logic from [kirurobo/UniWindowController: Makes your Unity window transparent and allows you to drop files](https://github.com/kirurobo/uniwindowcontroller)
 
 - DLL call logic reference [\[SOLVED!\] Windows: Transparent window with opaque contents (LWA_COLORKEY)? - Unity Engine - Unity Discussions](https://discussions.unity.com/t/solved-windows-transparent-window-with-opaque-contents-lwa-colorkey/578948/97)
+
+- Blit RenderFeature from Cyanilux : https://github.com/Cyanilux/URP_BlitRenderFeature
