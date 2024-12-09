@@ -8,6 +8,11 @@ https://github.com/user-attachments/assets/74aa5786-9882-47b5-ab6b-a5299a2f99a3
 
 适用于Windows Build
 
+## Readme
+
+- [中文](README-sc.md)
+- [English](README.md)
+
 ## 版本
 
 Unity 2021.3.9f1，使用Universal RP 12.1.7
