@@ -3,11 +3,8 @@
 一个基于Unity URP管线的，可用于桌宠、桌面小工具等用途的透明窗口可交互示例项目
 
 适用于Windows Build
----
 
 ## 版本
-
----
 
 Unity 2021.3.9f1，使用Universal RP 12.1.7
 
@@ -15,15 +12,11 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 
 ## 下载
 
----
-
 下载这一项目并使用Unity Hub打开
 
 不使用UnityPackage，原因请参见**注意事项**
 
 ## 特性
-
----
 
 - 后处理、shader、Physical system..总之就是Unity能干的那些事情
 
@@ -36,8 +29,6 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 - 运行时显示系统托盘图标与可自定义的右键菜单
 
 ## 注意事项
-
----
 
 1. 对于更高版本（14+）的URP管线：
 
@@ -55,8 +46,6 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 
 ## 已知限制
 
----
-
 - 不适用于HDR
 
 - 调用User32.dll，当前只适用于Windows平台构建
@@ -64,8 +53,6 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 - 性能需求可能较高，毕竟这玩意基本就是一个后台运行的Unity游戏
 
 ## 参考
-
----
 
 - 系统托盘逻辑来自[rocksdanister/rePaper: Desktop that changes based on weather & time](https://github.com/rocksdanister/rePaper)
 
