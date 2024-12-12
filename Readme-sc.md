@@ -1,8 +1,10 @@
 # UnityDesktopPetFramework
 
+https://github.com/user-attachments/assets/8096b714-465f-4d7c-b9a4-662d0bb3a9e1
+
+**更新：添加活动窗口的识别与物理碰撞示例** 
 
 https://github.com/user-attachments/assets/74aa5786-9882-47b5-ab6b-a5299a2f99a3
-
 
 一个基于Unity URP管线的，可用于桌宠、桌面小工具等用途的透明窗口可交互示例项目
 
@@ -33,6 +35,8 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
 
 - 切换窗口的鼠标穿透/可交互状态
 
+- 与当前活动的窗口进行物理交互！
+
 - 运行时隐藏任务栏图标
 
 - 运行时显示系统托盘图标与可自定义的右键菜单
@@ -52,6 +56,8 @@ Unity 2021.3.9f1，使用Universal RP 12.1.7
    由于对Universal RP中的UberPost.shader做了处理来让其输出实际透明度，对其做了Local化，[参考链接](https://discussions.unity.com/t/urp-camera-doesnt-allow-transparency-obs-overlay/878585/13)
 
    若想在已有项目中使用也请注意这点
+
+3. 需要确保活动窗口的Collider Layer不包含在交互检测的LayerMask中，否则会无法拖动窗口
 
 ## 已知限制
 
