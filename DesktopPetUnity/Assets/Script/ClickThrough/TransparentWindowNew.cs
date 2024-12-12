@@ -12,17 +12,17 @@ public class TransparentWindowNew : MonoBehaviour
     /// Raycastで使うマウスイベント情報
     /// </summary>
     private PointerEventData pointerEventData;
-    
+
     /// <summary>
     /// Raycast 時のレイヤーマスク
     /// </summary>
-    private int hitTestLayerMask;
+    public LayerMask hitTestLayerMask;
 
     [SerializeField]
     private Camera mainCamera;
 
     private bool clickThrough = true;
-    private bool prevClickThrough = true;
+    private bool prevClickThrough = false;
 
     private struct MARGINS
     {
@@ -67,8 +67,11 @@ public class TransparentWindowNew : MonoBehaviour
     void Start()
     {
         mainCamera = GetComponent<Camera> ();
-        hitTestLayerMask = ~LayerMask.GetMask("Ignore Raycast");
+        //hitTestLayerMask = ~LayerMask.GetMask("Ignore Raycast");
         pointerEventData = new PointerEventData(EventSystem.current);
+        
+        clickThrough = true;
+        prevClickThrough = false;
 
         #if !UNITY_EDITOR // You really don't want to enable this in the editor..
 
@@ -78,8 +81,8 @@ public class TransparentWindowNew : MonoBehaviour
         hwnd = GetActiveWindow();
 
         
-
-        SetWindowLong(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+        SetWindowLong (hwnd, -20, ~(((uint)524288) | ((uint)32)));
+        //SetWindowLong(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
         SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, fWidth, fHeight, 32 | 64); //SWP_FRAMECHANGED = 0x0020 (32); //SWP_SHOWWINDOW = 0x0040 (64)
         DwmExtendFrameIntoClientArea(hwnd, ref margins);
         SetWindowLong(hwnd, GWL_EXSTYLE, (uint)GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);  
@@ -126,7 +129,7 @@ public class TransparentWindowNew : MonoBehaviour
         foreach (var result in raycastResults)
         {
             // レイヤーマスクを考慮（Ignore Raycast 以外ならヒット）
-            if (((1 << result.gameObject.layer) & hitTestLayerMask) > 0)
+            if (((1 << result.gameObject.layer) & hitTestLayerMask) != 0)
             {
                 return true;
             }
@@ -154,7 +157,10 @@ public class TransparentWindowNew : MonoBehaviour
             Debug.DrawRay(ray.origin, ray.direction, Color.blue, 2f, false);
             if (rayHit2D.collider != null)
             {
-                return true;
+                if (((1 << rayHit2D.collider.gameObject.layer) & hitTestLayerMask) != 0)
+                {
+                    return true;
+                }
             }
         }
         else
