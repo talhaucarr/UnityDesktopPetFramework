@@ -2,7 +2,7 @@
 
 https://github.com/user-attachments/assets/8096b714-465f-4d7c-b9a4-662d0bb3a9e1
 
-** UPDATE: Now with active windows collide physics sample ** 
+**UPDATE: Now with active windows collide physics sample** 
 
 https://github.com/user-attachments/assets/74aa5786-9882-47b5-ab6b-a5299a2f99a3
 
