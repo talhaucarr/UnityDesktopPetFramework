@@ -57,6 +57,8 @@ Does not use UnityPackage, see **Notes** for reasons
 
    If you want to use it in an existing project, please note this
 
+3. Make sure that the Collider Layer of the active window is not included in the LayerMask for interaction detection, or the window cannot be dragged
+
 ## Known Limitations
 
 - Not suitable for HDR
