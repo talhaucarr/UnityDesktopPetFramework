@@ -1,40 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 
 public class ActiveWindowCollider : MonoBehaviour
 {
+    [SerializeField] private int windowRigidLayer = 0;
+    [SerializeField] private int maxWindowColliderCount = 10;
+    [SerializeField] private List<RECT> activeWindowRects = new();
+    [SerializeField] private List<BoxCollider2D> boxColliders = new();
     
-    /// <summary>Returns a dictionary that contains the handle and title of all the open windows.</summary>
-    /// <returns>A dictionary that contains the handle and title of all the open windows.</returns>
-    public static IDictionary<IntPtr, string> GetOpenWindows()
-    {
-        IntPtr shellWindow = GetShellWindow();
-        Dictionary<IntPtr, string> windows = new Dictionary<IntPtr, string>();
-
-        EnumWindows(delegate(IntPtr hWnd, int lParam)
-        {
-            if (hWnd == shellWindow) return true;
-            if (!IsWindowVisible(hWnd)) return true;
-
-            int length = GetWindowTextLength(hWnd);
-            if (length == 0) return true;
-
-            StringBuilder builder = new StringBuilder(length);
-            GetWindowText(hWnd, builder, length + 1);
-
-            windows[hWnd] = builder.ToString();
-            return true;
-
-        }, 0);
-
-        return windows;
-    }
-
     private delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
     [DllImport("user32.dll")]
@@ -51,135 +27,150 @@ public class ActiveWindowCollider : MonoBehaviour
 
     [DllImport("user32.dll")]
     private static extern IntPtr GetShellWindow();
-    
-    [DllImport("User32.dll")]
-    public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-    
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool IsIconic(IntPtr hWnd);
-    
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool GetWindowRect(HandleRef hWnd, out RECT lpRect);
 
+    [DllImport("User32.dll")]
+    private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsIconic(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowRect(HandleRef hWnd, out RECT lpRect);
+    
     [StructLayout(LayoutKind.Sequential)]
-    [Serializable]
     public struct RECT
     {
-        public int Left;        // x position of upper-left corner
-        public int Top;         // y position of upper-left corner
-        public int Right;       // x position of lower-right corner
-        public int Bottom;      // y position of lower-right corner
-    }
-    
-    Rectangle myRect = new Rectangle();
-    
-
-    const int GWL_STYLE = -16;
-    const uint WS_MAXIMIZE = 0x01000000;
-    const uint WS_SIZEBOX = 0x00040000;
-    
-    static bool IsSizeboxWindow(IntPtr hWnd)
-    {
-        int style = GetWindowLong(hWnd, GWL_STYLE);
-        return (style & WS_SIZEBOX) == WS_SIZEBOX;
-    }
-    
-    static bool IsMaximizeWindow(IntPtr hWnd)
-    {
-        int style = GetWindowLong(hWnd, GWL_STYLE);
-        return (style & WS_MAXIMIZE) == WS_MAXIMIZE;
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
     }
 
-    void UpdateCurrentOpenedWindows()
+    private const int GWL_STYLE = -16;
+    private const uint WS_MAXIMIZE = 0x01000000;
+    private const uint WS_SIZEBOX = 0x00040000;
+    
+    private Camera _camera;
+    
+    private List<string> _windowTitles = new();
+
+    private void Start()
+    {
+        _camera = Camera.main;
+        
+        InitializeBoxColliders();
+        UpdateWindowsAndColliders();
+    }
+
+    private void Update()
+    {
+        UpdateWindowsAndColliders();
+    }
+
+    private void UpdateWindowsAndColliders()
     {
         activeWindowRects.Clear();
-        foreach(KeyValuePair<IntPtr, string> window in GetOpenWindows())
+        _windowTitles.Clear();
+        
+        foreach (var window in GetOpenWindows())
         {
-            if (!IsIconic(window.Key))
+            if (!IsIconic(window.Key) && IsResizableWindow(window.Key) && !IsMaximizedWindow(window.Key))
             {
-                if(IsSizeboxWindow(window.Key) && !IsMaximizeWindow(window.Key))
+                if (GetWindowRect(new HandleRef(this, window.Key), out RECT rect) && (rect.Right - rect.Left) > 0 && (rect.Bottom - rect.Top) > 0)
                 {
-                    IntPtr handle = window.Key;
-                    string title = window.Value;
-                    //Debug.Log("Window handle: " + handle + " Window title: " + title);
-
-                    RECT rect;
-                    GetWindowRect(new HandleRef(this, handle), out rect);
-                    myRect = new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
                     activeWindowRects.Add(rect);
-                    //Debug.Log("Window rect: " + myRect);
+                    _windowTitles.Add(window.Value);
                 }
             }
         }
+        
+        UpdateBoxColliders();
     }
-    
-    public int windowRigidLayer = 0;
-    public int maxWindowColliderCount = 10;
-    [SerializeField]
-    public List<RECT> activeWindowRects = new List<RECT>();
-    [SerializeField]
-    public List<BoxCollider2D> boxColliders = new List<BoxCollider2D>();
-    
-    void CreateBoxColliders()
+
+    private void InitializeBoxColliders()
     {
         for (int i = 0; i < maxWindowColliderCount; i++)
         {
-            GameObject boxObject = new GameObject("WindowCollider");
+            GameObject boxObject = new("WindowCollider")
+            {
+                layer = windowRigidLayer,
+            };
             boxObject.transform.position = new Vector3(0, -100, 0);
+            
             BoxCollider2D boxCollider = boxObject.AddComponent<BoxCollider2D>();
-            boxObject.layer = windowRigidLayer;
-
             Rigidbody2D rb = boxObject.AddComponent<Rigidbody2D>();
             rb.isKinematic = true;
-
+            
             boxColliders.Add(boxCollider);
         }
     }
     
-    void UpdateBoxColliders()
+    private void UpdateBoxColliders()
     {
-        int count = Math.Min(activeWindowRects.Count, maxWindowColliderCount);
-        for (int i = 0; i < count; i++)
+        int count = Mathf.Min(activeWindowRects.Count, maxWindowColliderCount);
+        for (int i = 0; i < maxWindowColliderCount; i++)
         {
-            RECT rect = activeWindowRects[i];
             BoxCollider2D boxCollider = boxColliders[i];
+            if (i < count)
+            {
+                RECT rect = activeWindowRects[i];
+                Vector2 pixelSize = new(rect.Right - rect.Left, rect.Bottom - rect.Top);
+                Vector2 screenPosition = new(rect.Left + pixelSize.x / 2, rect.Top + pixelSize.y / 2);
 
-            Vector2 pixelSize = new Vector2(rect.Right - rect.Left, rect.Bottom - rect.Top);
-            Vector2 screenPosition = new Vector2(rect.Left + pixelSize.x / 2, rect.Top + pixelSize.y / 2);
+                Vector3 worldPosition = _camera.ScreenToWorldPoint(new Vector3(screenPosition.x, Screen.height - screenPosition.y, 0));
+                worldPosition.z = 0;
 
-            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(new Vector3(screenPosition.x, Screen.height - screenPosition.y, 0));
-            worldPosition.z = 0; // Set z to 0 since we are working in 2D
-
-            Vector3 worldSize = Camera.main.ScreenToWorldPoint(new Vector3(pixelSize.x, pixelSize.y, 0)) - Camera.main.ScreenToWorldPoint(Vector3.zero);
-
-            boxCollider.size = new Vector2(worldSize.x, worldSize.y);
-            boxCollider.attachedRigidbody.MovePosition(worldPosition);
+                Vector3 worldSize = _camera.ScreenToWorldPoint(new Vector3(pixelSize.x, pixelSize.y, 0)) - _camera.ScreenToWorldPoint(Vector3.zero);
+                
+                boxCollider.gameObject.name = _windowTitles[i];
+                
+                boxCollider.size = new Vector2(worldSize.x, worldSize.y);
+                boxCollider.attachedRigidbody.MovePosition(worldPosition);
+            }
+            else
+            {
+                boxCollider.size = Vector2.zero;
+                boxCollider.attachedRigidbody.MovePosition(new Vector3(0, -15, 0));
+                boxCollider.gameObject.name = "Inactive Window";
+            }
         }
+    }
+
+    private static bool IsResizableWindow(IntPtr hWnd)
+    {
+        return (GetWindowLong(hWnd, GWL_STYLE) & WS_SIZEBOX) == WS_SIZEBOX;
+    }
+    
+    private static bool IsMaximizedWindow(IntPtr hWnd)
+    {
+        return (GetWindowLong(hWnd, GWL_STYLE) & WS_MAXIMIZE) == WS_MAXIMIZE;
+    }
+    
+    private static IDictionary<IntPtr, string> GetOpenWindows()
+    {
+        IntPtr shellWindow = GetShellWindow();
+        Dictionary<IntPtr, string> windows = new();
         
-        // Reset the size and position of unused colliders
-        for (int i = count; i < maxWindowColliderCount; i++)
+        EnumWindows((hWnd, lParam) =>
         {
-            BoxCollider2D boxCollider = boxColliders[i];
-            boxCollider.size = Vector2.one;
-            boxCollider.attachedRigidbody.MovePosition(new Vector3(0, -15, 0));
-        }
-    }
+            if (hWnd == shellWindow || !IsWindowVisible(hWnd)) return true;
+            
+            int length = GetWindowTextLength(hWnd);
+            if (length == 0) return true;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-//#if !UNITY_EDITOR
-        UpdateCurrentOpenedWindows();
-        CreateBoxColliders();
-//#endif
-    }
+            StringBuilder builder = new(length + 1);
+            GetWindowText(hWnd, builder, length + 1);
+            string windowTitle = builder.ToString();
 
-    // Update is called once per frame
-    void Update()
-    {
-        UpdateCurrentOpenedWindows();
-        UpdateBoxColliders();
+            if (!string.IsNullOrWhiteSpace(windowTitle))
+            {
+                windows[hWnd] = windowTitle;
+            }
+            return true;
+        }, 0);
+
+        return windows;
     }
 }
